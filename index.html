@@ -1,779 +1,1468 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Muay Thai Technique Analyzer</title>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Muay Thai Technique Analyzer</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        min-height: 100vh;
+        background: #0a0a0a;
+        color: #e2e2e2;
+        font-family: "Source Sans 3", sans-serif;
+      }
 
-  body {
-    min-height: 100vh;
-    background: #0a0a0a;
-    color: #e2e2e2;
-    font-family: 'Source Sans 3', sans-serif;
-  }
+      header {
+        padding: 32px 24px 24px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        background: linear-gradient(
+          180deg,
+          rgba(220, 38, 38, 0.06) 0%,
+          transparent 100%
+        );
+      }
+      .header-tag {
+        font-size: 10px;
+        letter-spacing: 4px;
+        color: rgba(220, 38, 38, 0.7);
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-family: "Oswald", sans-serif;
+      }
+      h1 {
+        font-family: "Oswald", sans-serif;
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        background: linear-gradient(
+          135deg,
+          #fff 0%,
+          rgba(220, 38, 38, 0.9) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .header-sub {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.35);
+        margin-top: 8px;
+        max-width: 440px;
+        margin-inline: auto;
+      }
+      .container {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 24px 20px 60px;
+      }
 
-  header {
-    padding: 32px 24px 24px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    background: linear-gradient(180deg, rgba(220,38,38,0.06) 0%, transparent 100%);
-  }
-  .header-tag {
-    font-size: 10px; letter-spacing: 4px; color: rgba(220,38,38,0.7);
-    margin-bottom: 8px; font-weight: 600; font-family: 'Oswald', sans-serif;
-  }
-  h1 {
-    font-family: 'Oswald', sans-serif; font-size: 36px; font-weight: 700;
-    letter-spacing: 1px; text-transform: uppercase;
-    background: linear-gradient(135deg, #fff 0%, rgba(220,38,38,0.9) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .header-sub {
-    font-size: 13px; color: rgba(255,255,255,0.35); margin-top: 8px;
-    max-width: 420px; margin-inline: auto;
-  }
+      .dropzone {
+        border: 2px dashed rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 56px 24px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .dropzone.dragover {
+        border-color: rgba(220, 38, 38, 0.6);
+        background: rgba(220, 38, 38, 0.04);
+      }
+      .dropzone-icon {
+        font-size: 40px;
+        margin-bottom: 12px;
+      }
+      .dropzone-title {
+        font-family: "Oswald", sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .dropzone-sub {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.3);
+      }
 
-  .container { max-width: 700px; margin: 0 auto; padding: 24px 20px 60px; }
+      #preview-video {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 16px;
+        max-height: 360px;
+        object-fit: contain;
+        background: #000;
+      }
 
-  .dropzone {
-    border: 2px dashed rgba(255,255,255,0.12); border-radius: 14px;
-    padding: 56px 24px; text-align: center; cursor: pointer;
-    transition: all 0.2s; background: rgba(255,255,255,0.02);
-  }
-  .dropzone.dragover { border-color: rgba(220,38,38,0.6); background: rgba(220,38,38,0.04); }
-  .dropzone-icon { font-size: 40px; margin-bottom: 12px; }
-  .dropzone-title { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-  .dropzone-sub { font-size: 12px; color: rgba(255,255,255,0.3); }
+      .frame-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .frame-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        white-space: nowrap;
+      }
+      .frame-btns {
+        display: flex;
+        gap: 6px;
+      }
+      .frame-btn {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.5);
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 12px;
+        cursor: pointer;
+        font-family: "Oswald", sans-serif;
+        font-weight: 500;
+      }
+      .frame-btn.active {
+        background: rgba(220, 38, 38, 0.25);
+        border-color: rgba(220, 38, 38, 0.5);
+        color: #fff;
+      }
+      .frame-hint {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.25);
+      }
 
-  #preview-video {
-    width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 16px; max-height: 360px; object-fit: contain; background: #000;
-  }
+      .action-row {
+        display: flex;
+        gap: 10px;
+      }
+      .btn-analyze {
+        flex: 1;
+        padding: 14px 20px;
+        background: linear-gradient(135deg, #dc2626, #991b1b);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: "Oswald", sans-serif;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-analyze:disabled {
+        background: rgba(220, 38, 38, 0.15);
+        cursor: wait;
+        opacity: 0.6;
+      }
+      .btn-reset {
+        padding: 14px 18px;
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        font-size: 13px;
+        cursor: pointer;
+        font-family: "Oswald", sans-serif;
+      }
 
-  .frame-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-  .frame-label { font-size: 12px; color: rgba(255,255,255,0.5); white-space: nowrap; }
-  .frame-btns { display: flex; gap: 6px; }
-  .frame-btn {
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-    color: rgba(255,255,255,0.5); border-radius: 6px; padding: 5px 12px;
-    font-size: 12px; cursor: pointer; font-family: 'Oswald', sans-serif; font-weight: 500;
-  }
-  .frame-btn.active { background: rgba(220,38,38,0.25); border-color: rgba(220,38,38,0.5); color: #fff; }
-  .frame-hint { font-size: 11px; color: rgba(255,255,255,0.25); }
+      .error-box {
+        background: rgba(255, 59, 59, 0.08);
+        border: 1px solid rgba(255, 59, 59, 0.25);
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-top: 16px;
+        font-size: 13px;
+        color: #ff6b6b;
+      }
+      .loading-bar {
+        margin-top: 16px;
+        padding: 14px 18px;
+        border-radius: 10px;
+        background: rgba(220, 38, 38, 0.06);
+        border: 1px solid rgba(220, 38, 38, 0.15);
+      }
+      .loading-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 8px;
+      }
+      .loading-track {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .loading-fill {
+        height: 100%;
+        background: #dc2626;
+        border-radius: 2px;
+        transition: width 0.3s ease;
+      }
 
-  .action-row { display: flex; gap: 10px; }
-  .btn-analyze {
-    flex: 1; padding: 14px 20px;
-    background: linear-gradient(135deg, #dc2626, #991b1b); color: #fff;
-    border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
-    font-family: 'Oswald', sans-serif; letter-spacing: 1px; text-transform: uppercase;
-    cursor: pointer; transition: all 0.2s;
-  }
-  .btn-analyze:disabled { background: rgba(220,38,38,0.15); cursor: wait; opacity: 0.6; }
-  .btn-reset {
-    padding: 14px 18px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5);
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-    font-size: 13px; cursor: pointer; font-family: 'Oswald', sans-serif;
-  }
+      .pose-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 8px;
+        margin: 16px 0;
+      }
+      .pose-gallery canvas {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .pose-gallery > div {
+        position: relative;
+      }
 
-  .error-box {
-    background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.25);
-    border-radius: 10px; padding: 14px 18px; margin-top: 16px; font-size: 13px; color: #ff6b6b;
-  }
-  .loading-bar {
-    margin-top: 16px; padding: 14px 18px; border-radius: 10px;
-    background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.15);
-  }
-  .loading-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
-  .loading-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
-  .loading-fill { height: 100%; background: #dc2626; border-radius: 2px; transition: width 0.3s ease; }
+      .technique-badge {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        font-family: "Oswald", sans-serif;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+      .score-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(0, 0, 0, 0.7);
+        font-family: "Oswald", sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+      }
+      .ts-badge {
+        position: absolute;
+        bottom: 6px;
+        left: 6px;
+        background: rgba(0, 0, 0, 0.7);
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 3px;
+      }
 
-  .pose-gallery {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 8px; margin: 16px 0;
-  }
-  .pose-gallery canvas {
-    width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
-  }
-  .pose-gallery > div {
-    position: relative;
-  }
+      /* Technique breakdown bar */
+      .tech-breakdown {
+        margin: 16px 0;
+      }
+      .tech-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+      }
+      .tech-bar-label {
+        font-size: 11px;
+        font-family: "Oswald", sans-serif;
+        width: 80px;
+        text-align: right;
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .tech-bar-track {
+        flex: 1;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .tech-bar-fill {
+        height: 100%;
+        border-radius: 6px;
+        transition: width 0.5s ease;
+      }
+      .tech-bar-count {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.3);
+        width: 30px;
+      }
 
-  .metrics-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px; margin: 16px 0;
-  }
-  .metric-card {
-    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 10px; padding: 14px; text-align: center;
-  }
-  .metric-value { font-family: 'Oswald', sans-serif; font-size: 24px; font-weight: 700; }
-  .metric-label {
-    font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px;
-    text-transform: uppercase; margin-top: 4px;
-  }
-  .metric-range { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 2px; }
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+        margin: 16px 0;
+      }
+      .metric-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        padding: 14px;
+        text-align: center;
+      }
+      .metric-value {
+        font-family: "Oswald", sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .metric-label {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.4);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+      .metric-range {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.25);
+        margin-top: 2px;
+      }
 
-  @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-  #results { animation: fadeIn 0.5s ease; }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      #results {
+        animation: fadeIn 0.5s ease;
+      }
 
-  .score-header {
-    display: flex; align-items: center; gap: 24px; padding: 24px;
-    background: rgba(255,255,255,0.03); border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.06); margin-bottom: 20px;
-  }
-  .score-ring { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
-  .score-ring svg { transform: rotate(-90deg); }
-  .score-value {
-    position: absolute; inset: 0; display: flex; align-items: center;
-    justify-content: center; flex-direction: column;
-  }
-  .score-num { font-size: 28px; font-weight: 800; font-family: 'Oswald', sans-serif; }
-  .score-den { font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
-  .rating-label {
-    font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 600;
-    letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px;
-  }
-  .summary { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.6; }
-  .section-title {
-    font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 600;
-    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;
-  }
-  .strengths-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-  .strength-chip {
-    background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2);
-    border-radius: 8px; padding: 8px 14px; font-size: 12px; color: rgba(255,255,255,0.65);
-  }
-  .issue-card { border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; }
-  .issue-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .issue-severity {
-    font-size: 9px; font-weight: 700; letter-spacing: 1.5px; padding: 3px 8px;
-    border-radius: 4px; font-family: 'Oswald', sans-serif;
-  }
-  .issue-area { font-size: 14px; font-weight: 700; color: #e2e2e2; font-family: 'Oswald', sans-serif; }
-  .issue-obs { font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 8px; line-height: 1.5; }
-  .issue-details { display: flex; gap: 16px; flex-wrap: wrap; }
-  .issue-detail { flex: 1; min-width: 180px; }
-  .issue-detail-label { font-size: 9px; color: rgba(255,255,255,0.35); letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
-  .issue-detail-text { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5; }
-  .btn-again {
-    width: 100%; margin-top: 24px; padding: 14px;
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; color: rgba(255,255,255,0.5); font-size: 13px;
-    font-family: 'Oswald', sans-serif; font-weight: 500; letter-spacing: 1px;
-    text-transform: uppercase; cursor: pointer;
-  }
-  .hidden { display: none !important; }
-</style>
-</head>
-<body>
+      .score-header {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding: 24px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 20px;
+      }
+      .score-ring {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        flex-shrink: 0;
+      }
+      .score-ring svg {
+        transform: rotate(-90deg);
+      }
+      .score-value {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      .score-num {
+        font-size: 28px;
+        font-weight: 800;
+        font-family: "Oswald", sans-serif;
+      }
+      .score-den {
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.4);
+        letter-spacing: 1px;
+      }
+      .rating-label {
+        font-family: "Oswald", sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 4px;
+      }
+      .summary {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.6;
+      }
+      .section-title {
+        font-family: "Oswald", sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      .strengths-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+      .strength-chip {
+        background: rgba(34, 197, 94, 0.08);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.65);
+      }
+      .issue-card {
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+      }
+      .issue-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .issue-severity {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-family: "Oswald", sans-serif;
+      }
+      .issue-area {
+        font-size: 14px;
+        font-weight: 700;
+        color: #e2e2e2;
+        font-family: "Oswald", sans-serif;
+      }
+      .issue-obs {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 8px;
+        line-height: 1.5;
+      }
+      .issue-details {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .issue-detail {
+        flex: 1;
+        min-width: 180px;
+      }
+      .issue-detail-label {
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.35);
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+      }
+      .issue-detail-text {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.5;
+      }
+      .btn-again {
+        width: 100%;
+        margin-top: 24px;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 13px;
+        font-family: "Oswald", sans-serif;
+        font-weight: 500;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-tag">SHADOW BOXING</div>
+      <h1>Muay Thai Technique Analyzer</h1>
+      <p class="header-sub">
+        Upload a shadow boxing video. MediaPipe detects your strikes — jab,
+        cross, hook, uppercut, knee, teep, roundhouse — and AI coaches each
+        technique.
+      </p>
+    </header>
 
-<header>
-  <div class="header-tag">SHADOW BOXING</div>
-  <h1>Technique Analyzer</h1>
-  <p class="header-sub">Upload a shadow boxing video. MediaPipe detects your roundhouse kicks, measures joint angles, then AI coaches your technique with real numbers.</p>
-</header>
+    <div class="container">
+      <div id="dropzone" class="dropzone">
+        <input
+          type="file"
+          id="file-input"
+          accept="video/*"
+          style="display: none"
+        />
+        <div class="dropzone-icon">🥊</div>
+        <div class="dropzone-title">Drop your video here</div>
+        <div class="dropzone-sub">MP4, MOV, or WebM — any size</div>
+      </div>
 
-<div class="container">
-  <div id="dropzone" class="dropzone">
-    <input type="file" id="file-input" accept="video/*" style="display:none">
-    <div class="dropzone-icon">🥊</div>
-    <div class="dropzone-title">Drop your video here</div>
-    <div class="dropzone-sub">MP4, MOV, or WebM — any size</div>
-  </div>
+      <div id="preview-section" class="hidden">
+        <video id="preview-video" controls playsinline></video>
+        <div class="frame-row">
+          <span class="frame-label">Frames to scan:</span>
+          <div class="frame-btns" id="frame-btns"></div>
+          <span class="frame-hint">More frames = better detection</span>
+        </div>
+        <div class="action-row">
+          <button id="btn-analyze" class="btn-analyze">
+            Analyze Technique
+          </button>
+          <button id="btn-reset" class="btn-reset">Reset</button>
+        </div>
+      </div>
 
-  <div id="preview-section" class="hidden">
-    <video id="preview-video" controls playsinline></video>
-    <div class="frame-row">
-      <span class="frame-label">Frames to scan:</span>
-      <div class="frame-btns" id="frame-btns"></div>
-      <span class="frame-hint">More frames = denser tracking</span>
+      <div id="loading-box" class="loading-bar hidden">
+        <div class="loading-label" id="loading-label">Initializing...</div>
+        <div class="loading-track">
+          <div class="loading-fill" id="loading-fill" style="width: 0%"></div>
+        </div>
+      </div>
+      <div id="error-box" class="error-box hidden"></div>
+      <div id="results" class="hidden"></div>
     </div>
-    <div class="action-row">
-      <button id="btn-analyze" class="btn-analyze">Analyze Technique</button>
-      <button id="btn-reset" class="btn-reset">Reset</button>
-    </div>
-  </div>
 
-  <div id="loading-box" class="loading-bar hidden">
-    <div class="loading-label" id="loading-label">Initializing...</div>
-    <div class="loading-track"><div class="loading-fill" id="loading-fill" style="width:0%"></div></div>
-  </div>
+    <script type="module">
+      import {
+        PoseLandmarker,
+        FilesetResolver,
+      } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
 
-  <div id="error-box" class="error-box hidden"></div>
-  <div id="results" class="hidden"></div>
-</div>
+      // ── Landmark indices ──
+      const LM = {
+        NOSE: 0,
+        LEFT_EYE: 2,
+        RIGHT_EYE: 5,
+        LEFT_SHOULDER: 11,
+        RIGHT_SHOULDER: 12,
+        LEFT_ELBOW: 13,
+        RIGHT_ELBOW: 14,
+        LEFT_WRIST: 15,
+        RIGHT_WRIST: 16,
+        LEFT_HIP: 23,
+        RIGHT_HIP: 24,
+        LEFT_KNEE: 25,
+        RIGHT_KNEE: 26,
+        LEFT_ANKLE: 27,
+        RIGHT_ANKLE: 28,
+      };
 
-<script type="module">
-import { PoseLandmarker, FilesetResolver } from
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+      // ── Technique colors ──
+      const TECH_COLORS = {
+        jab: { bg: "#3b82f6", label: "JAB" },
+        cross: { bg: "#ef4444", label: "CROSS" },
+        hook: { bg: "#f59e0b", label: "HOOK" },
+        uppercut: { bg: "#a855f7", label: "UPPERCUT" },
+        elbow: { bg: "#ec4899", label: "ELBOW" },
+        knee: { bg: "#14b8a6", label: "KNEE" },
+        teep: { bg: "#22c55e", label: "TEEP" },
+        roundhouse: { bg: "#f97316", label: "ROUNDHOUSE" },
+        idle: { bg: "#6b7280", label: "IDLE" },
+      };
 
-// ── Landmark indices ──
-const LM = {
-  NOSE: 0,
-  LEFT_SHOULDER: 11, RIGHT_SHOULDER: 12,
-  LEFT_ELBOW: 13, RIGHT_ELBOW: 14,
-  LEFT_WRIST: 15, RIGHT_WRIST: 16,
-  LEFT_HIP: 23, RIGHT_HIP: 24,
-  LEFT_KNEE: 25, RIGHT_KNEE: 26,
-  LEFT_ANKLE: 27, RIGHT_ANKLE: 28,
-};
+      const SEVERITY = {
+        critical: {
+          color: "#ff3b3b",
+          bg: "rgba(255,59,59,0.08)",
+          border: "rgba(255,59,59,0.25)",
+          label: "CRITICAL",
+        },
+        moderate: {
+          color: "#f59e0b",
+          bg: "rgba(245,158,11,0.08)",
+          border: "rgba(245,158,11,0.25)",
+          label: "MODERATE",
+        },
+        minor: {
+          color: "#22c55e",
+          bg: "rgba(34,197,94,0.08)",
+          border: "rgba(34,197,94,0.25)",
+          label: "MINOR",
+        },
+      };
 
-const MUAY_THAI_SYSTEM_PROMPT = `You are an expert Muay Thai coach specializing in kicking technique. You have decades of experience training fighters at all levels.
-
-You are analyzing AUTOMATICALLY DETECTED roundhouse kick moments from a shadow boxing video. Each frame was selected by a pose-estimation system because it showed leg raise, knee chamber, hip rotation, or pivoting — NOT walking or idle stance.
+      const SYSTEM_PROMPT = `You are an expert Muay Thai coach analyzing shadow boxing footage. You have decades of experience training fighters in the "art of eight limbs."
 
 You are given:
-1. Annotated frames with skeleton overlays showing the fighter at key kick moments
-2. Quantitative pose data per kick: joint angles, ankle height, hip rotation, guard position, weight distribution
+1. Annotated frames from a shadow boxing video with skeleton overlays, each labeled with the detected technique
+2. Quantitative pose data per detected strike including joint angles, positions, and velocities
 
-ROUNDHOUSE KICK TECHNIQUE CHECKLIST — analyze each point:
-1. CHAMBER: Knee should drive up first (knee angle <120°). Higher chamber = more power.
-2. HIP TURNOVER: Shoulder-hip rotation >30° for power. The support hip should push forward.
-3. SUPPORT FOOT PIVOT: The base foot should rotate 90-180° to allow full hip rotation.
-4. KICK HEIGHT: Ankle should rise to hip level or above for body/head kicks.
-5. SHIN CONTACT: The leg should be slightly bent at extension, striking with the shin not the foot.
-6. GUARD DURING KICK: Hands should stay up (elbows 45-90°, wrists at/above chin). Dropping the opposite hand is the #1 beginner mistake.
-7. LEAN-BACK: Slight torso lean away from the kick for balance and counterweight.
-8. RETURN: The leg should snap back to stance, not drop to the floor.
-9. BALANCE: Weight should be solid on the support leg throughout.
+The techniques were auto-detected from pose estimation. Analyze EACH technique type present:
 
-Use the exact angle measurements to give SPECIFIC feedback like "Your knee chamber was only 145° — drive it up to 100-110° before extending" rather than vague advice.
+JAB: Lead hand extends, minimal hip rotation, rear hand guards chin. Check: full arm extension, shoulder turn, snap-back, rear hand stays up.
+CROSS: Rear hand extends, significant hip rotation (>20°), rear foot pivots. Check: hip drive, full extension, guard with lead hand, chin tucked behind shoulder.
+HOOK: Arm swings laterally, elbow ~90°, horizontal fist arc, hip rotation. Check: elbow angle locked 90°, pivot on lead foot, compact arc, rear hand guards.
+UPPERCUT: Hand drops then rises vertically, elbow tight, hips drive upward. Check: knee bend + drive, short rising arc, guard with opposite hand.
+ELBOW: Elbow drives horizontally or diagonally, forearm folds tight, close range. Check: hip rotation, tight fold, step-in, guard opposite side.
+KNEE: Knee drives up high, hips push forward, opposite arm pulls down. Check: hip thrust, height, support foot rises to ball, clinch grip position.
+TEEP (push kick): Knee chambers then extends straight forward, less rotation than roundhouse, pushing motion. Check: chamber height, full extension, foot position (ball of foot), retraction speed.
+ROUNDHOUSE: Leg swings in arc, hip turns over fully, support foot pivots. Check: knee chamber (<120°), hip rotation (>30°), shin as striking surface, guard stays up, lean-back for balance.
 
-Structure your response as JSON:
+For ALL techniques check:
+- Guard maintenance (hands dropping during strikes is the #1 beginner mistake)
+- Hip engagement and rotation
+- Return to stance after each strike
+- Balance throughout
+
+Use exact measurements from the pose data. Be specific: "Your cross at 4.2s had only 12° hip rotation — drive through to 30°+" not just "rotate more."
+
+Respond ONLY with this JSON:
 {
   "overall_rating": "beginner" | "intermediate" | "advanced",
   "score": <number 1-10>,
-  "strengths": ["strength 1", "strength 2", ...],
+  "strengths": ["strength 1", ...],
   "issues": [
     {
-      "area": "Chamber" | "Hip Turnover" | "Support Pivot" | "Kick Height" | "Guard" | "Balance" | "Return" | "Lean" | "Power" | "Setup",
+      "area": "Jab" | "Cross" | "Hook" | "Uppercut" | "Elbow" | "Knee" | "Teep" | "Roundhouse" | "Guard" | "Footwork" | "Balance" | "Combinations",
       "severity": "minor" | "moderate" | "critical",
-      "observation": "What you see — cite specific angle measurements and timestamps",
-      "correction": "How to fix it with target angle ranges",
-      "drill": "A specific drill to practice"
+      "observation": "cite specific measurements and timestamps",
+      "correction": "target angle ranges",
+      "drill": "specific drill"
     }
   ],
-  "summary": "2-3 sentence overall assessment of their roundhouse kick technique with encouragement"
-}
+  "summary": "2-3 sentence overall assessment"
+}`;
 
-IMPORTANT: Respond with ONLY the JSON object. No markdown, no backticks, no explanation outside the JSON.`;
+      // ── State ──
+      let frameCount = 100;
+      let videoObjUrl = null;
+      let poseLandmarker = null;
 
-const SEVERITY = {
-  critical: { color: "#ff3b3b", bg: "rgba(255,59,59,0.08)", border: "rgba(255,59,59,0.25)", label: "CRITICAL" },
-  moderate: { color: "#f59e0b", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.25)", label: "MODERATE" },
-  minor:    { color: "#22c55e", bg: "rgba(34,197,94,0.08)",  border: "rgba(34,197,94,0.25)",  label: "MINOR" },
-};
+      // ── DOM ──
+      const $ = (id) => document.getElementById(id);
+      const dropzone = $("dropzone"),
+        fileInput = $("file-input"),
+        previewSection = $("preview-section");
+      const previewVideo = $("preview-video"),
+        btnAnalyze = $("btn-analyze"),
+        btnReset = $("btn-reset");
+      const errorBox = $("error-box"),
+        resultsDiv = $("results"),
+        frameBtnsContainer = $("frame-btns");
+      const loadingBox = $("loading-box"),
+        loadingLabel = $("loading-label"),
+        loadingFill = $("loading-fill");
 
-// ── State ──
-let frameCount = 100;
-let videoObjUrl = null;
-let poseLandmarker = null;
+      // ── Init MediaPipe ──
+      async function initPose(delegate) {
+        const vision = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+        );
+        poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath:
+              "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task",
+            delegate,
+          },
+          runningMode: "IMAGE",
+          numPoses: 1,
+        });
+      }
+      const poseReady = initPose("GPU").catch(() => {
+        console.warn("GPU failed, CPU fallback");
+        return initPose("CPU");
+      });
 
-// ── DOM ──
-const dropzone = document.getElementById("dropzone");
-const fileInput = document.getElementById("file-input");
-const previewSection = document.getElementById("preview-section");
-const previewVideo = document.getElementById("preview-video");
-const btnAnalyze = document.getElementById("btn-analyze");
-const btnReset = document.getElementById("btn-reset");
-const errorBox = document.getElementById("error-box");
-const resultsDiv = document.getElementById("results");
-const frameBtnsContainer = document.getElementById("frame-btns");
-const loadingBox = document.getElementById("loading-box");
-const loadingLabel = document.getElementById("loading-label");
-const loadingFill = document.getElementById("loading-fill");
+      // ── Math ──
+      function angle3(a, b, c) {
+        const ba = { x: a.x - b.x, y: a.y - b.y, z: (a.z || 0) - (b.z || 0) };
+        const bc = { x: c.x - b.x, y: c.y - b.y, z: (c.z || 0) - (b.z || 0) };
+        const dot = ba.x * bc.x + ba.y * bc.y + ba.z * bc.z;
+        const mA = Math.sqrt(ba.x ** 2 + ba.y ** 2 + ba.z ** 2),
+          mB = Math.sqrt(bc.x ** 2 + bc.y ** 2 + bc.z ** 2);
+        if (!mA || !mB) return 180;
+        return (
+          Math.acos(Math.min(1, Math.max(-1, dot / (mA * mB)))) *
+          (180 / Math.PI)
+        );
+      }
+      function dist(a, b) {
+        return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+      }
+      function mid(a, b) {
+        return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      }
 
-// ── Init MediaPipe ──
-async function initPose(delegate) {
-  const vision = await FilesetResolver.forVisionTasks(
-    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
-  );
-  poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
-    baseOptions: {
-      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task",
-      delegate,
-    },
-    runningMode: "IMAGE",
-    numPoses: 1,
-  });
-}
+      // ── Compute full metrics ──
+      function computeMetrics(lm) {
+        const ls = lm[LM.LEFT_SHOULDER],
+          rs = lm[LM.RIGHT_SHOULDER];
+        const le = lm[LM.LEFT_ELBOW],
+          re = lm[LM.RIGHT_ELBOW];
+        const lw = lm[LM.LEFT_WRIST],
+          rw = lm[LM.RIGHT_WRIST];
+        const lh = lm[LM.LEFT_HIP],
+          rh = lm[LM.RIGHT_HIP];
+        const lk = lm[LM.LEFT_KNEE],
+          rk = lm[LM.RIGHT_KNEE];
+        const la = lm[LM.LEFT_ANKLE],
+          ra = lm[LM.RIGHT_ANKLE];
+        const nose = lm[LM.NOSE];
 
-const poseReady = initPose("GPU").catch(() => {
-  console.warn("GPU failed, falling back to CPU");
-  return initPose("CPU");
-});
+        const leftElbowAngle = Math.round(angle3(ls, le, lw));
+        const rightElbowAngle = Math.round(angle3(rs, re, rw));
+        const leftKneeAngle = Math.round(angle3(lh, lk, la));
+        const rightKneeAngle = Math.round(angle3(rh, rk, ra));
 
-// ── Math helpers ──
-function angle3(a, b, c) {
-  const ba = { x: a.x-b.x, y: a.y-b.y, z: (a.z||0)-(b.z||0) };
-  const bc = { x: c.x-b.x, y: c.y-b.y, z: (c.z||0)-(b.z||0) };
-  const dot = ba.x*bc.x + ba.y*bc.y + ba.z*bc.z;
-  const mA = Math.sqrt(ba.x**2 + ba.y**2 + ba.z**2);
-  const mB = Math.sqrt(bc.x**2 + bc.y**2 + bc.z**2);
-  if (!mA || !mB) return 0;
-  return Math.acos(Math.min(1, Math.max(-1, dot/(mA*mB)))) * (180/Math.PI);
-}
+        // Wrist extension from shoulder (normalized by shoulder width for scale invariance)
+        const shoulderW = dist(ls, rs) || 0.001;
+        const leftWristExt = dist(ls, lw) / shoulderW;
+        const rightWristExt = dist(rs, rw) / shoulderW;
 
-function dist(a, b) { return Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2); }
-function mid(a, b) { return { x:(a.x+b.x)/2, y:(a.y+b.y)/2 }; }
+        // Wrist height relative to nose (negative = above)
+        const guardHeightL = Math.round((lw.y - nose.y) * 1000) / 10;
+        const guardHeightR = Math.round((rw.y - nose.y) * 1000) / 10;
 
-function computeMetrics(lm) {
-  const ls=lm[LM.LEFT_SHOULDER], rs=lm[LM.RIGHT_SHOULDER];
-  const le=lm[LM.LEFT_ELBOW], re=lm[LM.RIGHT_ELBOW];
-  const lw=lm[LM.LEFT_WRIST], rw=lm[LM.RIGHT_WRIST];
-  const lh=lm[LM.LEFT_HIP], rh=lm[LM.RIGHT_HIP];
-  const lk=lm[LM.LEFT_KNEE], rk=lm[LM.RIGHT_KNEE];
-  const la=lm[LM.LEFT_ANKLE], ra=lm[LM.RIGHT_ANKLE];
-  const nose=lm[LM.NOSE];
+        // Wrist forward position (z-axis, lower = more forward)
+        const leftWristZ = lw.z || 0;
+        const rightWristZ = rw.z || 0;
 
-  const leftElbowAngle = Math.round(angle3(ls, le, lw));
-  const rightElbowAngle = Math.round(angle3(rs, re, rw));
-  const leftKneeAngle = Math.round(angle3(lh, lk, la));
-  const rightKneeAngle = Math.round(angle3(rh, rk, ra));
+        // Wrist lateral position relative to shoulder (for hooks — positive = further out)
+        const leftWristLateral = lw.x - ls.x;
+        const rightWristLateral = rs.x - rw.x;
 
-  const guardHeightLeft = Math.round((lw.y - nose.y) * 1000) / 10;
-  const guardHeightRight = Math.round((rw.y - nose.y) * 1000) / 10;
+        // Ankle heights relative to opposite hip
+        const leftAnkleH = rh.y - la.y;
+        const rightAnkleH = lh.y - ra.y;
 
-  const hipWidth = dist(lh, rh);
-  const stanceWidth = dist(la, ra);
-  const stanceRatio = hipWidth > 0 ? Math.round((stanceWidth / hipWidth) * 100) / 100 : 0;
+        // Hip rotation
+        const sAngle = Math.atan2(rs.y - ls.y, rs.x - ls.x) * (180 / Math.PI);
+        const hAngle = Math.atan2(rh.y - lh.y, rh.x - lh.x) * (180 / Math.PI);
+        const rotationDiff = Math.round(Math.abs(sAngle - hAngle) * 10) / 10;
 
-  const shoulderAngle = Math.atan2(rs.y-ls.y, rs.x-ls.x) * (180/Math.PI);
-  const hipAngle = Math.atan2(rh.y-lh.y, rh.x-lh.x) * (180/Math.PI);
-  const rotationDiff = Math.round(Math.abs(shoulderAngle - hipAngle) * 10) / 10;
+        // Stance
+        const stanceRatio = dist(la, ra) / (dist(lh, rh) || 0.001);
 
-  const hipCenter = mid(lh, rh);
-  const headOffset = Math.round((nose.x - hipCenter.x) * 1000) / 10;
+        // Weight
+        const ld = Math.abs(lh.x - la.x),
+          rd = Math.abs(rh.x - ra.x),
+          tot = ld + rd;
+        const weightLeft = tot > 0 ? Math.round((rd / tot) * 100) : 50;
 
-  const leftDist = Math.abs(lh.x - la.x);
-  const rightDist = Math.abs(rh.x - ra.x);
-  const total = leftDist + rightDist;
-  const weightLeft = total > 0 ? Math.round((rightDist / total) * 100) : 50;
+        // Head offset
+        const hipCenter = mid(lh, rh);
+        const headOffset = Math.round((nose.x - hipCenter.x) * 1000) / 10;
 
-  // Kick-specific: ankle heights relative to opposite hip (lower y = higher on screen)
-  const leftAnkleHeight = rh.y - la.y;   // positive = left ankle above right hip level
-  const rightAnkleHeight = lh.y - ra.y;  // positive = right ankle above left hip level
-  // Knee chamber: how bent is each knee (lower = more chambered)
-  const leftKneeChamber = leftKneeAngle;
-  const rightKneeChamber = rightKneeAngle;
+        return {
+          leftElbowAngle,
+          rightElbowAngle,
+          leftKneeAngle,
+          rightKneeAngle,
+          guardHeightL,
+          guardHeightR,
+          leftWristExt,
+          rightWristExt,
+          leftWristZ,
+          rightWristZ,
+          leftWristLateral,
+          rightWristLateral,
+          leftAnkleH,
+          rightAnkleH,
+          rotationDiff,
+          stanceRatio,
+          headOffset,
+          weightLeft,
+          weightRight: 100 - weightLeft,
+          // raw positions for velocity calc
+          _lw: lw,
+          _rw: rw,
+          _lk: lk,
+          _rk: rk,
+          _la: la,
+          _ra: ra,
+          _nose: nose,
+        };
+      }
 
-  return {
-    leftElbowAngle, rightElbowAngle,
-    leftKneeAngle, rightKneeAngle,
-    guardHeightLeft, guardHeightRight,
-    stanceRatio, rotationDiff, headOffset,
-    weightLeft, weightRight: 100 - weightLeft,
-    leftAnkleHeight, rightAnkleHeight,
-  };
-}
+      // ══════════════════════════════════════════════════════
+      // ── TECHNIQUE CLASSIFIER ──
+      // Each frame gets classified into the most likely technique.
+      // Uses current-frame pose + frame-to-frame deltas.
+      // ══════════════════════════════════════════════════════
+      function classifyTechniques(poseResults) {
+        const classified = [];
 
-// ── Kick detection scoring ──
-function scoreFramesForKicks(poseResults) {
-  const scores = new Array(poseResults.length).fill(0);
+        for (let i = 0; i < poseResults.length; i++) {
+          const m = poseResults[i].metrics;
+          if (!m) {
+            classified.push({ technique: "idle", confidence: 0 });
+            continue;
+          }
 
-  for (let i = 0; i < poseResults.length; i++) {
-    const m = poseResults[i].metrics;
-    if (!m) continue;
+          const prev = i > 0 ? poseResults[i - 1].metrics : null;
 
-    let score = 0;
+          // Compute velocities if previous frame exists
+          let lwVelY = 0,
+            rwVelY = 0,
+            lwVelX = 0,
+            rwVelX = 0,
+            lkVel = 0,
+            rkVel = 0,
+            laVelY = 0,
+            raVelY = 0;
+          if (prev) {
+            lwVelY = prev._lw.y - m._lw.y; // positive = moving up
+            rwVelY = prev._rw.y - m._rw.y;
+            lwVelX = Math.abs(m._lw.x - prev._lw.x);
+            rwVelX = Math.abs(m._rw.x - prev._rw.x);
+            lkVel = Math.abs(m.leftKneeAngle - prev.leftKneeAngle);
+            rkVel = Math.abs(m.rightKneeAngle - prev.rightKneeAngle);
+            laVelY = prev._la.y - m._la.y;
+            raVelY = prev._ra.y - m._ra.y;
+          }
 
-    // 1. Knee chamber — either knee bent sharply
-    const minKnee = Math.min(m.leftKneeAngle, m.rightKneeAngle);
-    if (minKnee < 100) score += 30;
-    else if (minKnee < 120) score += 20;
-    else if (minKnee < 140) score += 10;
+          const scores = {
+            jab: 0,
+            cross: 0,
+            hook: 0,
+            uppercut: 0,
+            elbow: 0,
+            knee: 0,
+            teep: 0,
+            roundhouse: 0,
+            idle: 0,
+          };
 
-    // 2. Ankle elevation — one ankle rises toward/above opposite hip
-    const maxAnkleH = Math.max(m.leftAnkleHeight, m.rightAnkleHeight);
-    if (maxAnkleH > 0.15) score += 30;
-    else if (maxAnkleH > 0.05) score += 20;
-    else if (maxAnkleH > 0) score += 10;
+          // ── PUNCHES (arm extension + velocity) ──
+          const maxWristExt = Math.max(m.leftWristExt, m.rightWristExt);
+          const isLeftArm = m.leftWristExt > m.rightWristExt;
+          const extArm = isLeftArm ? "left" : "right";
+          const elbowAngle = isLeftArm ? m.leftElbowAngle : m.rightElbowAngle;
+          const wristLat = isLeftArm ? m.leftWristLateral : m.rightWristLateral;
+          const wristVelY = isLeftArm ? lwVelY : rwVelY;
+          const wristVelX = isLeftArm ? lwVelX : rwVelX;
 
-    // 3. Hip rotation
-    if (m.rotationDiff > 25) score += 15;
-    else if (m.rotationDiff > 15) score += 10;
-    else if (m.rotationDiff > 8) score += 5;
+          // Straight punch (jab/cross): arm extended, elbow >140°
+          if (maxWristExt > 2.0 && elbowAngle > 140) {
+            if (m.rotationDiff > 15) {
+              scores.cross += 30 + Math.min(m.rotationDiff, 30); // cross = rotation
+            } else {
+              scores.jab += 30 + Math.min(maxWristExt * 5, 20); // jab = speed, less rotation
+            }
+          } else if (maxWristExt > 1.5 && elbowAngle > 130) {
+            if (m.rotationDiff > 12) scores.cross += 20;
+            else scores.jab += 20;
+          }
 
-    // 4. Weight heavily on one leg
-    const imbalance = Math.abs(m.weightLeft - 50);
-    if (imbalance > 30) score += 15;
-    else if (imbalance > 20) score += 10;
-    else if (imbalance > 10) score += 5;
+          // Hook: elbow ~70-110°, wrist moves laterally, arm not fully extended
+          if (
+            elbowAngle > 60 &&
+            elbowAngle < 120 &&
+            maxWristExt > 1.2 &&
+            maxWristExt < 2.2
+          ) {
+            const lateralScore = Math.abs(wristLat) * 200;
+            if (lateralScore > 10 && m.rotationDiff > 8) {
+              scores.hook +=
+                20 + Math.min(lateralScore, 30) + Math.min(m.rotationDiff, 15);
+            }
+          }
 
-    // 5. Frame-to-frame velocity (rapid knee/ankle change = dynamic kick)
-    if (i > 0 && poseResults[i-1].metrics) {
-      const pm = poseResults[i-1].metrics;
-      const kneeVel = Math.max(
-        Math.abs(m.leftKneeAngle - pm.leftKneeAngle),
-        Math.abs(m.rightKneeAngle - pm.rightKneeAngle)
+          // Uppercut: wrist moving upward, elbow bent, arm not fully extended
+          if (
+            wristVelY > 0.02 &&
+            elbowAngle > 50 &&
+            elbowAngle < 130 &&
+            maxWristExt < 2.0
+          ) {
+            scores.uppercut += 15 + Math.min(wristVelY * 500, 30);
+            if (m.rotationDiff > 8) scores.uppercut += 10;
+          }
+
+          // Elbow: very short arm (elbow tight), forearm folded, close range
+          if (elbowAngle < 60 && maxWristExt < 1.3 && m.rotationDiff > 8) {
+            scores.elbow += 25 + Math.min(60 - elbowAngle, 25);
+          }
+
+          // ── LEGS ──
+          const minKnee = Math.min(m.leftKneeAngle, m.rightKneeAngle);
+          const isLeftLeg = m.leftKneeAngle < m.rightKneeAngle;
+          const ankleH = isLeftLeg ? m.leftAnkleH : m.rightAnkleH;
+          const kneeVel = Math.max(lkVel, rkVel);
+          const ankleVelY = isLeftLeg ? laVelY : raVelY;
+
+          // Knee: knee angle very small, ankle tucked (not extended), knee high
+          if (minKnee < 90 && ankleH > -0.05) {
+            scores.knee += 35 + Math.min(90 - minKnee, 25);
+            if (kneeVel > 10) scores.knee += 10;
+          } else if (minKnee < 110 && ankleH > 0) {
+            scores.knee += 20;
+          }
+
+          // Teep: knee chambers then leg extends forward (knee straightens), ankle rises but more forward than lateral
+          const kickLegElbow = isLeftLeg ? m.leftKneeAngle : m.rightKneeAngle;
+          if (
+            ankleH > 0.02 &&
+            minKnee > 110 &&
+            minKnee < 160 &&
+            m.rotationDiff < 20
+          ) {
+            scores.teep += 25 + Math.min(ankleH * 100, 20);
+            if (kneeVel > 8) scores.teep += 10;
+          }
+
+          // Roundhouse: leg high + significant hip rotation + ankle elevated
+          if (ankleH > 0.02 && m.rotationDiff > 12) {
+            scores.roundhouse += 15;
+            if (minKnee < 140) scores.roundhouse += 15; // chambered
+            if (ankleH > 0.1) scores.roundhouse += 15; // high kick
+            if (m.rotationDiff > 25) scores.roundhouse += 15; // full turnover
+            if (kneeVel > 10) scores.roundhouse += 10;
+          }
+
+          // ── IDLE: nothing significant happening ──
+          if (
+            maxWristExt < 1.4 &&
+            minKnee > 150 &&
+            m.rotationDiff < 8 &&
+            Math.max(wristVelX, Math.abs(wristVelY)) < 0.02
+          ) {
+            scores.idle += 40;
+          }
+
+          // Pick winner
+          let best = "idle",
+            bestScore = scores.idle;
+          for (const [tech, s] of Object.entries(scores)) {
+            if (s > bestScore) {
+              best = tech;
+              bestScore = s;
+            }
+          }
+
+          classified.push({
+            technique: best,
+            confidence: Math.min(bestScore, 100),
+          });
+        }
+
+        return classified;
+      }
+
+      // Select top frames per technique, ensuring temporal spread
+      function selectStrikeFrames(classified, maxTotal = 24, minGap = 3) {
+        // Group by technique (exclude idle)
+        const byTech = {};
+        classified.forEach((c, i) => {
+          if (c.technique === "idle") return;
+          if (!byTech[c.technique]) byTech[c.technique] = [];
+          byTech[c.technique].push({ index: i, ...c });
+        });
+
+        const techCount = Object.keys(byTech).length || 1;
+        const perTech = Math.max(2, Math.floor(maxTotal / techCount));
+
+        const selected = [];
+        const taken = new Set();
+
+        for (const [tech, frames] of Object.entries(byTech)) {
+          const sorted = frames.sort((a, b) => b.confidence - a.confidence);
+          let count = 0;
+          for (const f of sorted) {
+            if (count >= perTech) break;
+            let tooClose = false;
+            for (const s of selected) {
+              if (Math.abs(s.index - f.index) < minGap) {
+                tooClose = true;
+                break;
+              }
+            }
+            if (tooClose) continue;
+            selected.push(f);
+            taken.add(f.index);
+            count++;
+          }
+        }
+
+        return selected.sort((a, b) => a.index - b.index);
+      }
+
+      // ── Frame count buttons ──
+      [50, 100, 250, 500, 1000].forEach((n) => {
+        const btn = document.createElement("button");
+        btn.className = "frame-btn" + (n === frameCount ? " active" : "");
+        btn.textContent = n;
+        btn.addEventListener("click", () => {
+          frameCount = n;
+          frameBtnsContainer
+            .querySelectorAll(".frame-btn")
+            .forEach((b) =>
+              b.classList.toggle("active", parseInt(b.textContent) === n)
+            );
+        });
+        frameBtnsContainer.appendChild(btn);
+      });
+
+      // ── File handling ──
+      dropzone.addEventListener("click", () => fileInput.click());
+      dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.classList.add("dragover");
+      });
+      dropzone.addEventListener("dragleave", () =>
+        dropzone.classList.remove("dragover")
       );
-      if (kneeVel > 15) score += 10;
-      else if (kneeVel > 8) score += 5;
+      dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+      });
+      fileInput.addEventListener("change", () => {
+        if (fileInput.files[0]) handleFile(fileInput.files[0]);
+      });
 
-      const ankleVel = Math.max(
-        Math.abs(m.leftAnkleHeight - pm.leftAnkleHeight),
-        Math.abs(m.rightAnkleHeight - pm.rightAnkleHeight)
-      );
-      if (ankleVel > 0.05) score += 10;
-    }
-
-    scores[i] = Math.min(score, 100);
-  }
-  return scores;
-}
-
-function selectKickFrames(scores, maxFrames = 20, minGap = 3) {
-  const indexed = scores.map((s, i) => ({ score: s, index: i }))
-    .filter(x => x.score >= 20)
-    .sort((a, b) => b.score - a.score);
-
-  const selected = [];
-  for (const { score, index } of indexed) {
-    if (selected.length >= maxFrames) break;
-    if (selected.some(s => Math.abs(s.index - index) < minGap)) continue;
-    selected.push({ index, score });
-  }
-  return selected.sort((a, b) => a.index - b.index);
-}
-
-// ── Frame count buttons ──
-[50, 100, 250, 500, 1000].forEach(n => {
-  const btn = document.createElement("button");
-  btn.className = "frame-btn" + (n === frameCount ? " active" : "");
-  btn.textContent = n;
-  btn.addEventListener("click", () => {
-    frameCount = n;
-    frameBtnsContainer.querySelectorAll(".frame-btn").forEach(b =>
-      b.classList.toggle("active", parseInt(b.textContent) === n)
-    );
-  });
-  frameBtnsContainer.appendChild(btn);
-});
-
-// ── File handling ──
-dropzone.addEventListener("click", () => fileInput.click());
-dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("dragover"); });
-dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
-dropzone.addEventListener("drop", e => {
-  e.preventDefault(); dropzone.classList.remove("dragover");
-  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener("change", () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
-
-function handleFile(file) {
-  if (!file || !file.type.startsWith("video/")) { showError("Please select a video file."); return; }
-  hideError(); resultsDiv.classList.add("hidden");
-  if (videoObjUrl) URL.revokeObjectURL(videoObjUrl);
-  videoObjUrl = URL.createObjectURL(file);
-  previewVideo.src = videoObjUrl;
-  dropzone.classList.add("hidden");
-  previewSection.classList.remove("hidden");
-}
-
-// ── Reset ──
-function doReset() {
-  if (videoObjUrl) URL.revokeObjectURL(videoObjUrl);
-  videoObjUrl = null;
-  previewVideo.removeAttribute("src"); previewVideo.load();
-  previewSection.classList.add("hidden"); resultsDiv.classList.add("hidden");
-  loadingBox.classList.add("hidden");
-  dropzone.classList.remove("hidden"); hideError(); fileInput.value = "";
-  btnAnalyze.disabled = false; btnAnalyze.textContent = "Analyze Technique";
-}
-btnReset.addEventListener("click", doReset);
-window.doReset = doReset;
-
-// ── Wait for duration ──
-function waitForDuration(v, timeout = 10000) {
-  return new Promise((resolve, reject) => {
-    if (v.duration && isFinite(v.duration) && v.readyState >= 1) { resolve(); return; }
-    const t = setTimeout(() => { cleanup(); reject(new Error("Timeout loading video metadata.")); }, timeout);
-    function cleanup() { v.removeEventListener("loadedmetadata", ok); v.removeEventListener("durationchange", ok); }
-    function ok() { if (v.duration && isFinite(v.duration)) { clearTimeout(t); cleanup(); resolve(); } }
-    v.addEventListener("loadedmetadata", ok);
-    v.addEventListener("durationchange", ok);
-  });
-}
-
-// ── Extract frames ──
-function extractFrames(videoEl, numFrames, onProgress) {
-  return new Promise((resolve, reject) => {
-    const duration = videoEl.duration;
-    if (!duration || !isFinite(duration)) { reject(new Error("No duration.")); return; }
-    const interval = duration / (numFrames + 1);
-    const times = Array.from({ length: numFrames }, (_, i) => interval * (i + 1));
-    const frames = []; let idx = 0; let last = -1;
-    const prev = videoEl.currentTime;
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    const tid = setTimeout(() => { done(); videoEl.currentTime = prev;
-      frames.length ? resolve(frames) : reject(new Error("Frame extraction timed out."));
-    }, 120000); // 2 min timeout for large counts
-
-    function done() { clearTimeout(tid); videoEl.removeEventListener("seeked", onSeeked); }
-    function onSeeked() {
-      if (last === idx) return; last = idx;
-      const w = videoEl.videoWidth, h = videoEl.videoHeight;
-      if (w && h) {
-        const s = Math.min(1280/w, 720/h, 1);
-        canvas.width = w*s; canvas.height = h*s;
-        ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-        const clone = document.createElement("canvas");
-        clone.width = canvas.width; clone.height = canvas.height;
-        clone.getContext("2d").drawImage(canvas, 0, 0);
-        frames.push({ timestamp: times[idx], canvas: clone });
-      }
-      if (onProgress) onProgress(idx + 1, times.length);
-      idx++;
-      if (idx < times.length) videoEl.currentTime = times[idx];
-      else { done(); videoEl.currentTime = prev; frames.length ? resolve(frames) : reject(new Error("No frames.")); }
-    }
-    videoEl.addEventListener("seeked", onSeeked);
-    videoEl.currentTime = times[0];
-  });
-}
-
-// ── Draw skeleton ──
-function drawSkeleton(canvas, landmarks) {
-  const ctx = canvas.getContext("2d");
-  const w = canvas.width, h = canvas.height;
-
-  const connections = [
-    [LM.LEFT_SHOULDER, LM.RIGHT_SHOULDER],
-    [LM.LEFT_SHOULDER, LM.LEFT_ELBOW], [LM.LEFT_ELBOW, LM.LEFT_WRIST],
-    [LM.RIGHT_SHOULDER, LM.RIGHT_ELBOW], [LM.RIGHT_ELBOW, LM.RIGHT_WRIST],
-    [LM.LEFT_SHOULDER, LM.LEFT_HIP], [LM.RIGHT_SHOULDER, LM.RIGHT_HIP],
-    [LM.LEFT_HIP, LM.RIGHT_HIP],
-    [LM.LEFT_HIP, LM.LEFT_KNEE], [LM.LEFT_KNEE, LM.LEFT_ANKLE],
-    [LM.RIGHT_HIP, LM.RIGHT_KNEE], [LM.RIGHT_KNEE, LM.RIGHT_ANKLE],
-  ];
-
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = "rgba(220,38,38,0.85)";
-  ctx.shadowColor = "rgba(220,38,38,0.5)";
-  ctx.shadowBlur = 6;
-  for (const [a, b] of connections) {
-    const pa = landmarks[a], pb = landmarks[b];
-    if ((pa.visibility||0) > 0.5 && (pb.visibility||0) > 0.5) {
-      ctx.beginPath();
-      ctx.moveTo(pa.x * w, pa.y * h);
-      ctx.lineTo(pb.x * w, pb.y * h);
-      ctx.stroke();
-    }
-  }
-
-  ctx.shadowBlur = 0;
-  const joints = [LM.NOSE, LM.LEFT_SHOULDER, LM.RIGHT_SHOULDER, LM.LEFT_ELBOW, LM.RIGHT_ELBOW,
-    LM.LEFT_WRIST, LM.RIGHT_WRIST, LM.LEFT_HIP, LM.RIGHT_HIP,
-    LM.LEFT_KNEE, LM.RIGHT_KNEE, LM.LEFT_ANKLE, LM.RIGHT_ANKLE];
-  for (const i of joints) {
-    const p = landmarks[i];
-    if ((p.visibility||0) > 0.5) {
-      ctx.beginPath(); ctx.arc(p.x*w, p.y*h, 5, 0, Math.PI*2);
-      ctx.fillStyle = "#fff"; ctx.fill();
-      ctx.beginPath(); ctx.arc(p.x*w, p.y*h, 3, 0, Math.PI*2);
-      ctx.fillStyle = "#dc2626"; ctx.fill();
-    }
-  }
-}
-
-// ── Progress ──
-function showProgress(label, pct) {
-  loadingBox.classList.remove("hidden");
-  loadingLabel.textContent = label;
-  loadingFill.style.width = pct + "%";
-}
-
-// ── Analyze ──
-btnAnalyze.addEventListener("click", async () => {
-  hideError(); resultsDiv.classList.add("hidden");
-  btnAnalyze.disabled = true;
-
-  try {
-    showProgress("Loading MediaPipe pose model...", 5);
-    await poseReady;
-
-    showProgress("Loading video metadata...", 10);
-    previewVideo.pause();
-    await waitForDuration(previewVideo);
-
-    showProgress(`Extracting ${frameCount} frames...`, 15);
-    const frames = await extractFrames(previewVideo, frameCount, (done, total) => {
-      const pct = 15 + Math.round((done / total) * 5);
-      if (done % Math.max(1, Math.floor(total / 50)) === 0 || done === total) {
-        showProgress(`Extracting frames (${done}/${total})...`, pct);
-      }
-    });
-
-    // Pose estimation on ALL frames
-    const poseResults = [];
-    for (let i = 0; i < frames.length; i++) {
-      const pct = 20 + Math.round((i / frames.length) * 40);
-      if (i % Math.max(1, Math.floor(frames.length / 20)) === 0 || i === frames.length - 1) {
-        showProgress(`Running pose estimation (${i+1}/${frames.length})...`, pct);
+      function handleFile(file) {
+        if (!file || !file.type.startsWith("video/")) {
+          showError("Please select a video file.");
+          return;
+        }
+        hideError();
+        resultsDiv.classList.add("hidden");
+        if (videoObjUrl) URL.revokeObjectURL(videoObjUrl);
+        videoObjUrl = URL.createObjectURL(file);
+        previewVideo.src = videoObjUrl;
+        dropzone.classList.add("hidden");
+        previewSection.classList.remove("hidden");
       }
 
-      const result = poseLandmarker.detect(frames[i].canvas);
-      let metrics = null;
-      if (result.landmarks && result.landmarks.length > 0) {
-        drawSkeleton(frames[i].canvas, result.landmarks[0]);
-        metrics = computeMetrics(result.landmarks[0]);
+      function doReset() {
+        if (videoObjUrl) URL.revokeObjectURL(videoObjUrl);
+        videoObjUrl = null;
+        previewVideo.removeAttribute("src");
+        previewVideo.load();
+        previewSection.classList.add("hidden");
+        resultsDiv.classList.add("hidden");
+        loadingBox.classList.add("hidden");
+        dropzone.classList.remove("hidden");
+        hideError();
+        fileInput.value = "";
+        btnAnalyze.disabled = false;
+        btnAnalyze.textContent = "Analyze Technique";
       }
-      poseResults.push({ timestamp: frames[i].timestamp, metrics });
+      btnReset.addEventListener("click", doReset);
+      window.doReset = doReset;
 
-      // Yield to UI every 10 frames so progress bar updates
-      if (i % 10 === 0) await new Promise(r => setTimeout(r, 0));
-    }
-
-    // ── Score frames and select kick moments ──
-    showProgress("Detecting roundhouse kicks...", 62);
-    const kickScores = scoreFramesForKicks(poseResults);
-    const kickFrames = selectKickFrames(kickScores, 20, Math.max(2, Math.floor(frames.length / 50)));
-
-    if (kickFrames.length === 0) {
-      throw new Error("No roundhouse kick movements detected. Make sure the video shows kicks with visible leg raises and hip rotation.");
-    }
-
-    showProgress(`Found ${kickFrames.length} kick frames! Sending to Claude...`, 65);
-
-    // Pick up to 8 kick frames for images (best scored, spread across time)
-    const MAX_API_FRAMES = 8;
-    let apiKickFrames = kickFrames;
-    if (kickFrames.length > MAX_API_FRAMES) {
-      // Take evenly spaced from the kick frames
-      apiKickFrames = [];
-      for (let i = 0; i < MAX_API_FRAMES; i++) {
-        apiKickFrames.push(kickFrames[Math.round(i * (kickFrames.length - 1) / (MAX_API_FRAMES - 1))]);
+      function waitForDuration(v, timeout = 10000) {
+        return new Promise((resolve, reject) => {
+          if (v.duration && isFinite(v.duration) && v.readyState >= 1) {
+            resolve();
+            return;
+          }
+          const t = setTimeout(() => {
+            cleanup();
+            reject(new Error("Timeout loading video."));
+          }, timeout);
+          function cleanup() {
+            v.removeEventListener("loadedmetadata", ok);
+            v.removeEventListener("durationchange", ok);
+          }
+          function ok() {
+            if (v.duration && isFinite(v.duration)) {
+              clearTimeout(t);
+              cleanup();
+              resolve();
+            }
+          }
+          v.addEventListener("loadedmetadata", ok);
+          v.addEventListener("durationchange", ok);
+        });
       }
-    }
 
-    // Build per-kick metrics text
-    const kickMetricsText = kickFrames.map((kf, i) => {
-      const m = poseResults[kf.index].metrics;
-      if (!m) return `Kick ${i+1}: no pose data`;
-      const kickSide = m.leftAnkleHeight > m.rightAnkleHeight ? "LEFT" : "RIGHT";
-      const kickKnee = kickSide === "LEFT" ? m.leftKneeAngle : m.rightKneeAngle;
-      const supportKnee = kickSide === "LEFT" ? m.rightKneeAngle : m.leftKneeAngle;
-      const ankleH = kickSide === "LEFT" ? m.leftAnkleHeight : m.rightAnkleHeight;
-      return `Kick moment ${i+1} at ${poseResults[kf.index].timestamp.toFixed(1)}s (score: ${kf.score}/100, ${kickSide} leg):
-  Kicking knee: ${kickKnee}° (chamber <120° ideal) | Support knee: ${supportKnee}° (155-170° ideal)
-  Kicking ankle height: ${ankleH > 0 ? "+" : ""}${(ankleH*100).toFixed(0)} (relative to hip, positive=above)
-  Hip rotation: ${m.rotationDiff}° (>30° ideal for power)
-  Guard: L elbow ${m.leftElbowAngle}° R elbow ${m.rightElbowAngle}° (45-90° ideal — watch for dropping hands)
-  Guard height: L ${m.guardHeightLeft > 0 ? m.guardHeightLeft+" below" : Math.abs(m.guardHeightLeft)+" above"} nose | R ${m.guardHeightRight > 0 ? m.guardHeightRight+" below" : Math.abs(m.guardHeightRight)+" above"} nose
-  Weight: ${m.weightLeft}%L / ${m.weightRight}%R
-  Stance: ${m.stanceRatio}x hip width`;
-    }).join("\n\n");
+      function extractFrames(videoEl, numFrames, onProgress) {
+        return new Promise((resolve, reject) => {
+          const duration = videoEl.duration;
+          if (!duration || !isFinite(duration)) {
+            reject(new Error("No duration."));
+            return;
+          }
+          const interval = duration / (numFrames + 1);
+          const times = Array.from(
+            { length: numFrames },
+            (_, i) => interval * (i + 1)
+          );
+          const frames = [];
+          let idx = 0;
+          let last = -1;
+          const prev = videoEl.currentTime;
+          const canvas = document.createElement("canvas"),
+            ctx = canvas.getContext("2d");
+          const tid = setTimeout(() => {
+            done();
+            videoEl.currentTime = prev;
+            frames.length ? resolve(frames) : reject(new Error("Timed out."));
+          }, 120000);
+          function done() {
+            clearTimeout(tid);
+            videoEl.removeEventListener("seeked", onSeeked);
+          }
+          function onSeeked() {
+            if (last === idx) return;
+            last = idx;
+            const w = videoEl.videoWidth,
+              h = videoEl.videoHeight;
+            if (w && h) {
+              const s = Math.min(1280 / w, 720 / h, 1);
+              canvas.width = w * s;
+              canvas.height = h * s;
+              ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+              const c = document.createElement("canvas");
+              c.width = canvas.width;
+              c.height = canvas.height;
+              c.getContext("2d").drawImage(canvas, 0, 0);
+              frames.push({ timestamp: times[idx], canvas: c });
+            }
+            if (onProgress) onProgress(idx + 1, times.length);
+            idx++;
+            if (idx < times.length) videoEl.currentTime = times[idx];
+            else {
+              done();
+              videoEl.currentTime = prev;
+              frames.length ? resolve(frames) : reject(new Error("No frames."));
+            }
+          }
+          videoEl.addEventListener("seeked", onSeeked);
+          videoEl.currentTime = times[0];
+        });
+      }
 
-    // Build API content with kick frame images
-    const content = [];
-    for (const kf of apiKickFrames) {
-      const jpeg = frames[kf.index].canvas.toDataURL("image/jpeg", 0.75).split(",")[1];
-      content.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: jpeg } });
-    }
-    content.push({
-      type: "text",
-      text: `These ${apiKickFrames.length} frames are AUTOMATICALLY DETECTED roundhouse kick moments from a ${frames.length}-frame shadow boxing video. Each frame was selected because it shows leg raise, knee chamber, hip rotation, or pivot — not walking or retreating.
+      function drawSkeleton(canvas, landmarks) {
+        const ctx = canvas.getContext("2d"),
+          w = canvas.width,
+          h = canvas.height;
+        const conn = [
+          [11, 12],
+          [11, 13],
+          [13, 15],
+          [12, 14],
+          [14, 16],
+          [11, 23],
+          [12, 24],
+          [23, 24],
+          [23, 25],
+          [25, 27],
+          [24, 26],
+          [26, 28],
+        ];
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "rgba(220,38,38,0.85)";
+        ctx.shadowColor = "rgba(220,38,38,0.5)";
+        ctx.shadowBlur = 6;
+        for (const [a, b] of conn) {
+          const pa = landmarks[a],
+            pb = landmarks[b];
+          if ((pa.visibility || 0) > 0.5 && (pb.visibility || 0) > 0.5) {
+            ctx.beginPath();
+            ctx.moveTo(pa.x * w, pa.y * h);
+            ctx.lineTo(pb.x * w, pb.y * h);
+            ctx.stroke();
+          }
+        }
+        ctx.shadowBlur = 0;
+        for (const i of [0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28]) {
+          const p = landmarks[i];
+          if ((p.visibility || 0) > 0.5) {
+            ctx.beginPath();
+            ctx.arc(p.x * w, p.y * h, 5, 0, Math.PI * 2);
+            ctx.fillStyle = "#fff";
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(p.x * w, p.y * h, 3, 0, Math.PI * 2);
+            ctx.fillStyle = "#dc2626";
+            ctx.fill();
+          }
+        }
+      }
 
-DETAILED KICK-BY-KICK MEASUREMENTS (${kickFrames.length} kick moments total):
+      function showProgress(label, pct) {
+        loadingBox.classList.remove("hidden");
+        loadingLabel.textContent = label;
+        loadingFill.style.width = pct + "%";
+      }
 
-${kickMetricsText}
+      // ══════════════════════════════════════
+      // ── MAIN ANALYSIS PIPELINE ──
+      // ══════════════════════════════════════
+      btnAnalyze.addEventListener("click", async () => {
+        hideError();
+        resultsDiv.classList.add("hidden");
+        btnAnalyze.disabled = true;
 
-OVERALL AVERAGES ACROSS ALL ${poseResults.filter(p=>p.metrics).length} FRAMES:
-- Avg guard elbow: L ${Math.round(poseResults.filter(p=>p.metrics).reduce((a,p)=>a+p.metrics.leftElbowAngle,0)/poseResults.filter(p=>p.metrics).length)}° R ${Math.round(poseResults.filter(p=>p.metrics).reduce((a,p)=>a+p.metrics.rightElbowAngle,0)/poseResults.filter(p=>p.metrics).length)}°
-- Avg stance ratio: ${(poseResults.filter(p=>p.metrics).reduce((a,p)=>a+p.metrics.stanceRatio,0)/poseResults.filter(p=>p.metrics).length).toFixed(2)}x
+        try {
+          showProgress("Loading MediaPipe pose model...", 5);
+          await poseReady;
 
-Focus your analysis on ROUNDHOUSE KICK TECHNIQUE specifically:
-1. Knee chamber — is the knee driving up high enough before extending?
-2. Hip turnover — is there sufficient rotation through the kick?
-3. Support foot pivot — is the base foot turning to allow full rotation?
-4. Guard during kicks — do the hands drop when kicking?
-5. Kick height and extension
-6. Return — does the leg snap back to stance after the kick?
-7. Balance on the support leg throughout`
-    });
+          showProgress("Loading video metadata...", 10);
+          previewVideo.pause();
+          await waitForDuration(previewVideo);
 
-    showProgress("Waiting for AI coaching response...", 75);
+          showProgress(`Extracting ${frameCount} frames...`, 15);
+          const frames = await extractFrames(
+            previewVideo,
+            frameCount,
+            (done, total) => {
+              if (
+                done % Math.max(1, Math.floor(total / 50)) === 0 ||
+                done === total
+              )
+                showProgress(
+                  `Extracting frames (${done}/${total})...`,
+                  15 + Math.round((done / total) * 5)
+                );
+            }
+          );
 
-    const res = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2000,
-        system: MUAY_THAI_SYSTEM_PROMPT,
-        messages: [{ role: "user", content }],
-      }),
-    });
+          // Pose estimation
+          const poseResults = [];
+          for (let i = 0; i < frames.length; i++) {
+            if (
+              i % Math.max(1, Math.floor(frames.length / 20)) === 0 ||
+              i === frames.length - 1
+            )
+              showProgress(
+                `Pose estimation (${i + 1}/${frames.length})...`,
+                20 + Math.round((i / frames.length) * 35)
+              );
+            const result = poseLandmarker.detect(frames[i].canvas);
+            let metrics = null;
+            if (result.landmarks?.length > 0) {
+              drawSkeleton(frames[i].canvas, result.landmarks[0]);
+              metrics = computeMetrics(result.landmarks[0]);
+            }
+            poseResults.push({ timestamp: frames[i].timestamp, metrics });
+            if (i % 10 === 0) await new Promise((r) => setTimeout(r, 0));
+          }
 
-    if (!res.ok) throw new Error(`API error: ${res.status} — ${await res.text()}`);
+          // Classify techniques
+          showProgress("Classifying techniques...", 58);
+          const classified = classifyTechniques(poseResults);
 
-    showProgress("Processing results...", 90);
-    const data = await res.json();
-    const text = data.content.filter(b => b.type === "text").map(b => b.text).join("");
-    const analysis = JSON.parse(text.replace(/```json|```/g, "").trim());
+          // Select best strike frames
+          const strikeFrames = selectStrikeFrames(
+            classified,
+            24,
+            Math.max(2, Math.floor(frames.length / 60))
+          );
 
-    showProgress("Done!", 100);
-    renderResults(analysis, frames, poseResults, kickFrames, kickScores);
+          if (strikeFrames.length === 0) {
+            throw new Error(
+              "No strikes detected. Make sure the video shows clear punches, kicks, knees, or elbows."
+            );
+          }
 
-  } catch (err) {
-    showError(err.message);
-    btnAnalyze.disabled = false;
-    btnAnalyze.textContent = "Analyze Technique";
-    loadingBox.classList.add("hidden");
-  }
-});
+          // Technique counts
+          const techCounts = {};
+          classified.forEach((c) => {
+            if (c.technique !== "idle")
+              techCounts[c.technique] = (techCounts[c.technique] || 0) + 1;
+          });
 
-// ── Render results ──
-function renderResults(r, frames, poseResults, kickFrames, kickScores) {
-  loadingBox.classList.add("hidden");
-  previewSection.classList.add("hidden");
+          showProgress(
+            `Detected ${strikeFrames.length} strikes across ${
+              Object.keys(techCounts).length
+            } techniques...`,
+            62
+          );
 
-  const scoreColor = r.score >= 7 ? "#22c55e" : r.score >= 4 ? "#f59e0b" : "#ff3b3b";
-  const pct = (r.score / 10) * 100;
+          // Build per-strike metrics text
+          const strikeMetrics = strikeFrames
+            .map((sf, i) => {
+              const m = poseResults[sf.index].metrics;
+              if (!m) return `Strike ${i + 1}: no data`;
+              return `Strike ${
+                i + 1
+              } [${sf.technique.toUpperCase()}] at ${poseResults[
+                sf.index
+              ].timestamp.toFixed(1)}s (conf: ${sf.confidence}):
+  Elbows: L ${m.leftElbowAngle}° R ${m.rightElbowAngle}° | Knees: L ${
+                m.leftKneeAngle
+              }° R ${m.rightKneeAngle}°
+  Wrist extension: L ${m.leftWristExt.toFixed(1)}x R ${m.rightWristExt.toFixed(
+                1
+              )}x shoulder-width
+  Guard height: L ${
+    m.guardHeightL > 0
+      ? m.guardHeightL + " below"
+      : Math.abs(m.guardHeightL) + " above"
+  } nose | R ${
+                m.guardHeightR > 0
+                  ? m.guardHeightR + " below"
+                  : Math.abs(m.guardHeightR) + " above"
+              } nose
+  Hip rotation: ${m.rotationDiff}° | Weight: ${m.weightLeft}%L/${
+                m.weightRight
+              }%R
+  Ankle height: L ${(m.leftAnkleH * 100).toFixed(0)} R ${(
+                m.rightAnkleH * 100
+              ).toFixed(0)} (relative to hip)
+  Stance: ${m.stanceRatio.toFixed(2)}x hip width`;
+            })
+            .join("\n\n");
 
-  // Average metrics from KICK frames only
-  const kickMetrics = kickFrames.map(kf => poseResults[kf.index].metrics).filter(Boolean);
-  let avgHtml = "";
-  if (kickMetrics.length > 0) {
-    const avg = arr => Math.round(arr.reduce((a,b)=>a+b,0)/arr.length);
-    const am = {
-      guardElbow: avg(kickMetrics.map(m => Math.min(m.leftElbowAngle, m.rightElbowAngle))),
-      knee: avg(kickMetrics.map(m => Math.min(m.leftKneeAngle, m.rightKneeAngle))),
-      rot: avg(kickMetrics.map(m => m.rotationDiff)),
-      ankleH: (kickMetrics.reduce((a,m)=>a+Math.max(m.leftAnkleHeight,m.rightAnkleHeight),0)/kickMetrics.length*100).toFixed(0),
-      wt: avg(kickMetrics.map(m => m.weightLeft)),
-    };
-    function mc(v, lo, hi) { return v>=lo&&v<=hi ? "#22c55e" : (Math.abs(v < lo ? lo-v : v-hi) > 30 ? "#ff3b3b" : "#f59e0b"); }
-    avgHtml = `
-      <h3 class="section-title" style="color:rgba(255,255,255,0.4);margin-top:20px">Kick Averages (${kickFrames.length} kicks detected)</h3>
-      <div class="metrics-grid">
-        <div class="metric-card"><div class="metric-value" style="color:${mc(am.knee,80,120)}">${am.knee}°</div><div class="metric-label">Kick Knee</div><div class="metric-range">Chamber &lt;120°</div></div>
-        <div class="metric-card"><div class="metric-value" style="color:${mc(am.rot,20,90)}">${am.rot}°</div><div class="metric-label">Hip Rotation</div><div class="metric-range">&gt;30° ideal</div></div>
-        <div class="metric-card"><div class="metric-value" style="color:${parseInt(am.ankleH)>5?"#22c55e":"#f59e0b"}">${am.ankleH}</div><div class="metric-label">Ankle Height</div><div class="metric-range">Higher = better</div></div>
-        <div class="metric-card"><div class="metric-value" style="color:${mc(am.guardElbow,45,90)}">${am.guardElbow}°</div><div class="metric-label">Guard (kicking)</div><div class="metric-range">45-90° ideal</div></div>
-        <div class="metric-card"><div class="metric-value" style="color:${mc(am.wt,15,85)}">${am.wt}/${100-am.wt}</div><div class="metric-label">Weight L/R</div><div class="metric-range">Shifts on kick</div></div>
+          // Pick up to 8 images for API
+          const MAX_IMG = 8;
+          let apiFrames = strikeFrames;
+          if (strikeFrames.length > MAX_IMG) {
+            // Ensure variety: pick from different techniques
+            const byTech = {};
+            strikeFrames.forEach((sf) => {
+              if (!byTech[sf.technique]) byTech[sf.technique] = [];
+              byTech[sf.technique].push(sf);
+            });
+            apiFrames = [];
+            const techs = Object.keys(byTech);
+            let round = 0;
+            while (apiFrames.length < MAX_IMG) {
+              let added = false;
+              for (const t of techs) {
+                if (apiFrames.length >= MAX_IMG) break;
+                if (round < byTech[t].length) {
+                  apiFrames.push(byTech[t][round]);
+                  added = true;
+                }
+              }
+              if (!added) break;
+              round++;
+            }
+            apiFrames.sort((a, b) => a.index - b.index);
+          }
+
+          const content = [];
+          for (const sf of apiFrames) {
+            const jpeg = frames[sf.index].canvas
+              .toDataURL("image/jpeg", 0.75)
+              .split(",")[1];
+            content.push({
+              type: "image",
+              source: { type: "base64", media_type: "image/jpeg", data: jpeg },
+            });
+          }
+
+          const techSummary = Object.entries(techCounts)
+            .map(([t, c]) => `${t}: ${c} frames`)
+            .join(", ");
+
+          content.push({
+            type: "text",
+            text: `${apiFrames.length} frames showing detected strikes from ${frames.length} total scanned. Each was auto-classified by pose estimation.
+
+TECHNIQUE DISTRIBUTION: ${techSummary}
+
+STRIKE-BY-STRIKE MEASUREMENTS (${strikeFrames.length} total):
+
+${strikeMetrics}
+
+Analyze the fighter's Muay Thai technique across ALL detected techniques. Use the measurements to give specific, quantitative feedback.`,
+          });
+
+          showProgress("Waiting for AI coaching...", 70);
+
+          const res = await fetch("/api/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 2500,
+              system: SYSTEM_PROMPT,
+              messages: [{ role: "user", content }],
+            }),
+          });
+          if (!res.ok)
+            throw new Error(`API error: ${res.status} — ${await res.text()}`);
+
+          showProgress("Processing results...", 90);
+          const data = await res.json();
+          const text = data.content
+            .filter((b) => b.type === "text")
+            .map((b) => b.text)
+            .join("");
+          const analysis = JSON.parse(text.replace(/```json|```/g, "").trim());
+
+          showProgress("Done!", 100);
+          renderResults(
+            analysis,
+            frames,
+            poseResults,
+            classified,
+            strikeFrames,
+            techCounts
+          );
+        } catch (err) {
+          showError(err.message);
+          btnAnalyze.disabled = false;
+          btnAnalyze.textContent = "Analyze Technique";
+          loadingBox.classList.add("hidden");
+        }
+      });
+
+      // ── Render ──
+      function renderResults(
+        r,
+        frames,
+        poseResults,
+        classified,
+        strikeFrames,
+        techCounts
+      ) {
+        loadingBox.classList.add("hidden");
+        previewSection.classList.add("hidden");
+
+        const scoreColor =
+          r.score >= 7 ? "#22c55e" : r.score >= 4 ? "#f59e0b" : "#ff3b3b";
+        const pct = (r.score / 10) * 100;
+
+        // Technique breakdown bars
+        const maxCount = Math.max(...Object.values(techCounts), 1);
+        const barsHtml = Object.entries(techCounts)
+          .sort((a, b) => b[1] - a[1])
+          .map(([t, c]) => {
+            const tc = TECH_COLORS[t] || TECH_COLORS.idle;
+            return `<div class="tech-bar-row">
+        <div class="tech-bar-label">${tc.label}</div>
+        <div class="tech-bar-track"><div class="tech-bar-fill" style="width:${
+          (c / maxCount) * 100
+        }%;background:${tc.bg}"></div></div>
+        <div class="tech-bar-count">${c}</div>
       </div>`;
-  }
+          })
+          .join("");
 
-  const issues = (r.issues||[]).sort((a,b) => ({critical:0,moderate:1,minor:2}[a.severity]??3)-({critical:0,moderate:1,minor:2}[b.severity]??3));
+        const issues = (r.issues || []).sort(
+          (a, b) =>
+            (({ critical: 0, moderate: 1, minor: 2 }[a.severity] ?? 3) -
+            ({ critical: 0, moderate: 1, minor: 2 }[b.severity] ?? 3))
+        );
 
-  resultsDiv.innerHTML = `
-    <h3 class="section-title" style="color:rgba(220,38,38,0.7);margin-bottom:4px">Detected Kick Frames</h3>
-    <p style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:12px">${frames.length} frames scanned · ${kickFrames.length} kick moments detected · showing up to 12 below</p>
+        resultsDiv.innerHTML = `
+    <h3 class="section-title" style="color:rgba(220,38,38,0.7);margin-bottom:4px">Detected Strikes</h3>
+    <p style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:12px">${
+      frames.length
+    } frames scanned · ${strikeFrames.length} strikes found across ${
+          Object.keys(techCounts).length
+        } technique types</p>
+
+    <div class="tech-breakdown">${barsHtml}</div>
+
     <div class="pose-gallery" id="pose-gallery"></div>
-    ${avgHtml}
 
     <div class="score-header" style="margin-top:20px">
       <div class="score-ring">
         <svg viewBox="0 0 36 36" width="100" height="100">
-          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.5"/>
-          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="${scoreColor}" stroke-width="2.5" stroke-dasharray="${pct}, 100" stroke-linecap="round"/>
+          <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.5"/>
+          <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="${scoreColor}" stroke-width="2.5" stroke-dasharray="${pct},100" stroke-linecap="round"/>
         </svg>
         <div class="score-value">
           <span class="score-num" style="color:${scoreColor}">${r.score}</span>
@@ -781,65 +1470,117 @@ function renderResults(r, frames, poseResults, kickFrames, kickScores) {
         </div>
       </div>
       <div style="flex:1">
-        <div class="rating-label">${r.overall_rating||""}</div>
-        <p class="summary">${r.summary||""}</p>
+        <div class="rating-label">${r.overall_rating || ""}</div>
+        <p class="summary">${r.summary || ""}</p>
       </div>
     </div>
 
-    ${(r.strengths?.length) ? `
+    ${
+      r.strengths?.length
+        ? `
       <div style="margin-bottom:20px">
         <h3 class="section-title" style="color:#22c55e">Strengths</h3>
-        <div class="strengths-wrap">${r.strengths.map(s=>`<span class="strength-chip">${esc(s)}</span>`).join("")}</div>
-      </div>` : ""}
+        <div class="strengths-wrap">${r.strengths
+          .map((s) => `<span class="strength-chip">${esc(s)}</span>`)
+          .join("")}</div>
+      </div>`
+        : ""
+    }
 
-    ${issues.length ? `
+    ${
+      issues.length
+        ? `
       <h3 class="section-title" style="color:rgba(255,255,255,0.4)">Areas to Improve</h3>
-      ${issues.map(issue => {
-        const c = SEVERITY[issue.severity]||SEVERITY.minor;
-        return `<div class="issue-card" style="background:${c.bg};border:1px solid ${c.border}">
+      ${issues
+        .map((issue) => {
+          const c = SEVERITY[issue.severity] || SEVERITY.minor;
+          return `<div class="issue-card" style="background:${
+            c.bg
+          };border:1px solid ${c.border}">
           <div class="issue-header">
-            <span class="issue-severity" style="color:${c.color};background:${c.color}18">${c.label}</span>
+            <span class="issue-severity" style="color:${c.color};background:${
+            c.color
+          }18">${c.label}</span>
             <span class="issue-area">${esc(issue.area)}</span>
           </div>
           <p class="issue-obs">${esc(issue.observation)}</p>
           <div class="issue-details">
-            <div class="issue-detail"><div class="issue-detail-label">Fix</div><div class="issue-detail-text">${esc(issue.correction)}</div></div>
-            <div class="issue-detail"><div class="issue-detail-label">Drill</div><div class="issue-detail-text">${esc(issue.drill)}</div></div>
+            <div class="issue-detail"><div class="issue-detail-label">Fix</div><div class="issue-detail-text">${esc(
+              issue.correction
+            )}</div></div>
+            <div class="issue-detail"><div class="issue-detail-label">Drill</div><div class="issue-detail-text">${esc(
+              issue.drill
+            )}</div></div>
           </div>
         </div>`;
-      }).join("")}` : ""}
+        })
+        .join("")}`
+        : ""
+    }
 
     <button class="btn-again" onclick="doReset()">Analyze Another Video</button>
   `;
 
-  const gallery = document.getElementById("pose-gallery");
-  const MAX_GALLERY = 12;
-  const galleryKicks = kickFrames.length <= MAX_GALLERY ? kickFrames
-    : Array.from({ length: MAX_GALLERY }, (_, i) =>
-        kickFrames[Math.round(i * (kickFrames.length - 1) / (MAX_GALLERY - 1))]);
-  galleryKicks.forEach(kf => {
-    const wrapper = document.createElement("div");
-    wrapper.style.position = "relative";
-    const canvas = frames[kf.index].canvas;
-    wrapper.appendChild(canvas);
-    // Score badge
-    const badge = document.createElement("div");
-    badge.style.cssText = `position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.7);color:${kf.score>=60?"#22c55e":kf.score>=35?"#f59e0b":"#ff6b6b"};font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:0.5px;`;
-    badge.textContent = `${kf.score}pts`;
-    wrapper.appendChild(badge);
-    // Timestamp
-    const ts = document.createElement("div");
-    ts.style.cssText = "position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,0.7);color:rgba(255,255,255,0.6);font-size:10px;padding:2px 6px;border-radius:3px;";
-    ts.textContent = `${poseResults[kf.index].timestamp.toFixed(1)}s`;
-    wrapper.appendChild(ts);
-    gallery.appendChild(wrapper);
-  });
-  resultsDiv.classList.remove("hidden");
-}
+        // Gallery — show up to 16 strike frames
+        const gallery = $("pose-gallery");
+        const MAX_GAL = 16;
+        const galFrames =
+          strikeFrames.length <= MAX_GAL
+            ? strikeFrames
+            : Array.from(
+                { length: MAX_GAL },
+                (_, i) =>
+                  strikeFrames[
+                    Math.round((i * (strikeFrames.length - 1)) / (MAX_GAL - 1))
+                  ]
+              );
 
-function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
-function showError(msg) { errorBox.textContent = msg; errorBox.classList.remove("hidden"); }
-function hideError() { errorBox.classList.add("hidden"); }
-</script>
-</body>
+        galFrames.forEach((sf) => {
+          const wrapper = document.createElement("div");
+          const tc = TECH_COLORS[sf.technique] || TECH_COLORS.idle;
+
+          wrapper.appendChild(frames[sf.index].canvas);
+
+          const techBadge = document.createElement("div");
+          techBadge.className = "technique-badge";
+          techBadge.style.cssText = `background:${tc.bg};color:#fff;`;
+          techBadge.textContent = tc.label;
+          wrapper.appendChild(techBadge);
+
+          const scoreBadge = document.createElement("div");
+          scoreBadge.className = "score-badge";
+          scoreBadge.style.color =
+            sf.confidence >= 60
+              ? "#22c55e"
+              : sf.confidence >= 35
+              ? "#f59e0b"
+              : "#ff6b6b";
+          scoreBadge.textContent = `${sf.confidence}pts`;
+          wrapper.appendChild(scoreBadge);
+
+          const ts = document.createElement("div");
+          ts.className = "ts-badge";
+          ts.textContent = `${poseResults[sf.index].timestamp.toFixed(1)}s`;
+          wrapper.appendChild(ts);
+
+          gallery.appendChild(wrapper);
+        });
+
+        resultsDiv.classList.remove("hidden");
+      }
+
+      function esc(s) {
+        const d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+      function showError(msg) {
+        errorBox.textContent = msg;
+        errorBox.classList.remove("hidden");
+      }
+      function hideError() {
+        errorBox.classList.add("hidden");
+      }
+    </script>
+  </body>
 </html>
